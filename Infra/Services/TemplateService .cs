@@ -1,6 +1,6 @@
-﻿using Application.Interfaces;
-using Domain.DTOs;
+﻿using Domain.DTOs;
 using HandlebarsDotNet;
+using Shared.Interfaces;
 
 namespace Application.Services;
 
@@ -13,7 +13,7 @@ public class TemplateService : ITemplateService
         _caminhoTemplates = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Templates");
     }
 
-    public async Task<string> ProcessarTemplate(string templateNome, FaturaDto dados)
+    public async Task<string> ProcessarTemplate(string templateNome, InvoiceDto dados)
     {
         string caminhoArquivo = Path.Combine(_caminhoTemplates, $"{templateNome}.html");
 
