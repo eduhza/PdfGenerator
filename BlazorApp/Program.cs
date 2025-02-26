@@ -1,7 +1,6 @@
-using Application.Interfaces;
-using Application.Services;
+using Application;
 using BlazorApp.Components;
-using BlazorApp.Services;
+using Infra;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,9 +8,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("http://localhost:3000/") });
-builder.Services.AddScoped<ITemplateService, TemplateService>();
-builder.Services.AddScoped<PdfService>();
+builder.Services.AddInfraModule();
+builder.Services.AddApplicationModule();
 
 var app = builder.Build();
 

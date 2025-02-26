@@ -1,58 +1,30 @@
-﻿@using Application.Interfaces
-@using BlazorApp.Services
-@using Domain.DTOs
+﻿@using Application.UseCases
 
 @page "/"
 @rendermode InteractiveServer
-@inject PdfService PdfService
-@inject ITemplateService TemplateService
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JS
+@inject GenerateInvoicePdf GenerateInvoicePdf
+
+<script src="js/site.js"></script>
 
 <PageTitle>Home</PageTitle>
 
 <h3>Gerar PDF com Gotenberg</h3>
 
-<textarea @bind="HtmlContent" rows="10" cols="80"></textarea>
-
-<p role="status">Current count: @currentCount</p>
 <br />
 
 <button class="btn btn-primary" @onclick="GeneratePdf">Gerar PDF</button>
 
-<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
-
 @code {
-    private string HtmlContent = "";//"<html><body><h1>Olá, Gotenberg!</h1></body></html>";
-    private int currentCount = 0;
-
-    private void IncrementCount()
-    {
-        currentCount++;
-    }
-
     private async Task GeneratePdf()
     {
-        var fatura = new FaturaDto
-        {
-            NomeEmpresa = "Minha Empresa LTDA",
-            ValorFatura = "R$ 1.299,99",
-            DataVencimento = DateTime.UtcNow.AddDays(7).ToString("dd/MM/yyyy")
-        };
-
-        HtmlContent = await TemplateService.ProcessarTemplate("fatura", fatura);
-
-        var pdfBytes = await PdfService.GeneratePdfAsync(HtmlContent);
+        var pdfBytes = await GenerateInvoicePdf.ExecuteAsync();
 
         if (pdfBytes != null)
         {
-            // Salva o PDF em um arquivo físico
-            await File.WriteAllBytesAsync("pdfGerado.pdf", pdfBytes);
-
-            // Converte o PDF em um Blob e abre uma nova aba
-            var base64 = Convert.ToBase64String(pdfBytes);
-            var dataUri = $"data:application/pdf;base64,{base64}";
-            await JS.InvokeVoidAsync("open", dataUri, "_blank");
+            var fileURL = await JS.InvokeAsync<string>("createBlobURL", pdfBytes);
+            await JS.InvokeVoidAsync("open", fileURL, "_blank");
         }
         else
         {
